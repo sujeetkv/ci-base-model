@@ -487,11 +487,13 @@ class MY_Model extends CI_Model
 		if(! in_array($this->model_db->platform(), array('mysql', 'mysqli'))){
 			return NULL;
 		}else{
-			return (int) $this->model_db->select('AUTO_INCREMENT')
+			/* return (int) $this->model_db->select('AUTO_INCREMENT')
 							->where('TABLE_NAME', $this->model_db->dbprefix($this->getTable($table)))
 							->where('TABLE_SCHEMA', $this->model_db->database)
 							->get('information_schema.TABLES')
-							->row()->AUTO_INCREMENT;
+							->row()->AUTO_INCREMENT; */
+			$query = "SHOW TABLE STATUS WHERE `Name` = '".$this->model_db->dbprefix($this->getTable($table))."'";
+			return ($row = $this->model_db->query($query)->row()) ? (int) $row->Auto_increment : NULL;
 		}
     }
 	
@@ -501,11 +503,10 @@ class MY_Model extends CI_Model
 	 * @param	string	$table
 	 */
 	public function fetchPrimaryKey($table = ''){
-		empty($table) and $table = $this->table;
 		$key = NULL;
 		
 		if(! in_array($this->model_db->platform(), array('mysql', 'mysqli'))){
-			if($fields = $this->getSchema($table)){
+			if($fields = $this->getSchema($this->getTable($table))){
 				foreach($fields as $field){
 					if($field->primary_key == '1'){
 						$key = $field->name;
@@ -514,7 +515,8 @@ class MY_Model extends CI_Model
 				}
 			}
 		}else{
-			if($row = $this->model_db->query("SHOW KEYS FROM `".$this->model_db->dbprefix($table)."` WHERE Key_name = 'PRIMARY'")->row()){
+			$query = "SHOW KEYS FROM `".$this->model_db->dbprefix($this->getTable($table))."` WHERE `Key_name` = 'PRIMARY'";
+			if($row = $this->model_db->query($query)->row()){
 				$key = $row->Column_name;
 			}
 		}
