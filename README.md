@@ -41,7 +41,7 @@ $this->post->deleteById(1);
 ```
 
 Installation / Usage
-------------------
+--------------------
 
 Download and put the MY\_Model.php file into _application/core_ folder. CodeIgniter will load and initialise this class automatically.
 
@@ -78,15 +78,17 @@ Some of the CRUD and relation functions use primary key ID column that is assign
 
 
 Model Relations
--------------
+---------------
 
 _MY\_Model_ has support for basic `belongs_to` and `has_many` relationships. These relationships are easy to define:
 
-    class Post_model extends MY_Model
-    {
-        protected $belongs_to = array( 'user' );
-        protected $has_many = array( 'comments' );
-    }
+```php
+class Post_model extends MY_Model
+{
+    protected $belongs_to = array( 'user' );
+    protected $has_many = array( 'comments' );
+}
+```
 
 It will assume that a MY_Model API-compatible model with the singular relationship's name has been defined. By default, this will be `<singular of relationship>_model`. The above example, for instance, would require two other models:
 
@@ -95,30 +97,38 @@ It will assume that a MY_Model API-compatible model with the singular relationsh
 
 If you'd like to customise this, you can pass through the model name as a parameter:
 
-    class Post_model extends MY_Model
-    {
-        protected $belongs_to = array( 'user' => array( 'model' => 'user_m' ) );
-        protected $has_many = array( 'comments' => array( 'model' => 'model_comments' ) );
-    }
+```php
+class Post_model extends MY_Model
+{
+    protected $belongs_to = array( 'user' => array( 'model' => 'user_m' ) );
+    protected $has_many = array( 'comments' => array( 'model' => 'model_comments' ) );
+}
+```
 
 You can then access your related data using the `with()` method:
 
-    $post = $this->post_model->with('user')
-                             ->with('comments')
-                             ->getById(1);
+```php
+$post = $this->post_model->with('user')
+                         ->with('comments')
+                         ->getById(1);
+```
 
 The related data will be embedded in the returned value from `getById`:
 
-    echo $post->user->name;
+```php
+echo $post->user->name;
 
-    foreach ($post->comments as $comment)
-    {
-        echo $message;
-    }
+foreach ($post->comments as $comment)
+{
+    echo $message;
+}
+```
 
 You can access chained related data recursively using the `withRecursive()` method:
 
-    $post = $this->post_model->withRecursive()->getById(1);
+```php
+$post = $this->post_model->withRecursive()->getById(1);
+```
 
 You can pass recursion level to `withRecursive()` method.
 
@@ -134,11 +144,31 @@ The relation key can also be configured. For _belongs\_to_ calls, the related ke
 
 To change this, use the `foreign_key` value when configuring relation:
 
-    class Post_model extends MY_Model
-    {
-        public $belongs_to = array( 'users' => array( 'foreign_key' => 'post_user_id' ) );
-        public $has_many = array( 'comments' => array( 'foreign_key' => 'parent_post_id' ) );
-    }
+```php
+class Post_model extends MY_Model
+{
+    public $belongs_to = array( 'users' => array( 'foreign_key' => 'post_user_id' ) );
+    public $has_many = array( 'comments' => array( 'foreign_key' => 'parent_post_id' ) );
+}
+```
+
+Complete relation format is:
+
+```php
+class Post_model extends MY_Model
+{
+    public $has_many = array(
+                           'comments' => array(
+                               'model' => 'model_comments',
+                               'foreign_key' => 'parent_post_id',
+                               'fields' => 'id, content',
+                               'limit' => array(5, 0),
+                               'order' => array('id', 'desc'),
+                               'scope' => array('status' => 1)
+                           )
+                       );
+}
+```
 
 Arrays / Objects
 -----------------
@@ -147,15 +177,19 @@ By default, MY_Model is setup to return objects using CodeIgniter's QueryBuilder
 
 If you'd like all your calls to use the array methods, you can set the `$default_return_type` variable to `array`.
 
-    class Book_model extends MY_Model
-    {
-        protected $default_return_type = 'array';
-    }
+```php
+class Book_model extends MY_Model
+{
+    protected $default_return_type = 'array';
+}
+```
 
 If you'd like just your _next_ call to return a specific type, there are two scoping methods you can use:
 
-    $this->book_model->asArray()->getById(1);
-    $this->book_model->asObject()->getById(1);
+```php
+$this->book_model->asArray()->getById(1);
+$this->book_model->asObject()->getById(1);
+```
 
 Special Save Feature
 --------------------
