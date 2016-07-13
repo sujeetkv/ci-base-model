@@ -158,7 +158,7 @@ If you'd like just your _next_ call to return a specific type, there are two sco
     $this->book_model->asObject()->getById(1);
 
 Special Save Feature
------------------
+--------------------
 
 You can save data to model's table by using `save()` method. This method will insert or update data based on whether you have passed `$primary_key` field in data or not.
 
@@ -200,4 +200,16 @@ public function beforeSave($data, $table){
 }
 ```
 
-*Many of the methods of `MY_Model` accept parameter to pass table name, so that we can use them for any table of database.*
+Notes:
+------
+
+Many methods of `MY_Model` accept parameter named `$options`. This can be used to call any valid CodeIgniter DB Object's method:
+
+```php
+$posts = $this->post->getAll(array('status' => 1), "posts.*, authors.name", NULL, array(
+    'join' => array('authors', 'posts.author_id = authors.id', 'left'),
+	'order_by' => array('posts.id', 'desc')
+));
+```
+
+*Many methods of `MY_Model` accept parameter to pass table name, so that we can use them for any table of database.*
