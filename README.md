@@ -200,4 +200,4 @@ public function beforeSave($data, $table){
 }
 ```
 
-*Many of the methods of `MY_Model` accept parameter to pass table name, so that we can use them for any table of dataase.*
+*Many of the methods of `MY_Model` accept parameter to pass table name, so that we can use them for any table of database.*
