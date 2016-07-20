@@ -3,7 +3,7 @@ CodeIgniter Base Model
 
 By- Sujeet <sujeetkv90@gmail.com>
 
-CodeIgniter Base Model is an extended CI_Model class to use in your CodeIgniter applications. It provides a bunch of CRUD operation methods to perform database interaction easier in our application, with provision of intelligent table name guessing and assigning primary key of model automatically. It makes database interaction code DRY and also provide inter-model relation feature.
+CodeIgniter Base Model is an extended CI_Model class to use in your CodeIgniter applications. It provides a bunch of CRUD operation methods to perform database interaction easier in our application, with provision of intelligent table name guessing and assigning primary key of model automatically. It makes database interactions code DRY and also provide inter-model relation feature giving a little bit of ORM features.
 
 Synopsis
 --------
@@ -120,7 +120,7 @@ echo $post->user->name;
 
 foreach ($post->comments as $comment)
 {
-    echo $message;
+    echo $comment->content;
 }
 ```
 
@@ -225,7 +225,7 @@ $this->post->save(array(
     'modified' => false
 ));
 ```
-We can specify observer/callback method for `save()` named as *brforeSave()* in our model. It will be called before any call to `save()` method. Data to be saved will be passed to `beforeSave()` and must be return by `beforeSave()`. You can any operation (e.g. Validation or Modification) on data in this method. If you don't want to proceed to respective `save()` method, just retun false from `beforeSave()` method otherwise return passed data as it is or modified.
+We can specify observer/callback method for `save()` named as *brforeSave()* in our model. It will be called before any call to `save()` method. Data to be saved will be passed to `beforeSave()` and must be return by this method. You can perform any operation (e.g. Validation or Modification) on data in this method. If you don't want to proceed to respective `save()` method (e.g. in case of invalid data), just retun false from `beforeSave()` method otherwise return passed data as it is or modified.
 
 ```php
 public function beforeSave($data, $table){
@@ -237,7 +237,7 @@ public function beforeSave($data, $table){
 Notes:
 ------
 
-Many methods of `MY_Model` accept parameter named `$options`. This can be used to call any valid CodeIgniter DB Object's method:
+Many methods of `MY_Model` accept parameter named `$options`. This can be used to call any valid CodeIgniter DB Object's method except `get*` methods:
 
 ```php
 $posts = $this->post->getAll(array('status' => 1), "posts.*, authors.name", NULL, array(
