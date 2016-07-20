@@ -3,7 +3,7 @@ CodeIgniter Base Model
 
 By- Sujeet <sujeetkv90@gmail.com>
 
-CodeIgniter Base Model is an extended CI_Model class to use in your CodeIgniter applications. It provides a bunch of CRUD operation methods to perform database interaction easier in our application, with provision of intelligent table name guessing and assigning primary key of model automatically. It makes database interactions code DRY and also provide inter-model relation feature giving a little bit of ORM features.
+CodeIgniter Base Model is an extended CI_Model class to use in your CodeIgniter applications. It provides a bunch of CRUD operation methods to perform database interaction easier in our application, with provision of intelligent table name guessing and assigning primary key of model automatically. It makes database interactions code DRY and also provide inter-model relation feature giving a little bit of ORM flavour.
 
 Synopsis
 --------
