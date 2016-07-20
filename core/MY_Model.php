@@ -495,7 +495,7 @@ class MY_Model extends CI_Model
 			$query = "SHOW TABLE STATUS WHERE `Name` = '".$this->model_db->dbprefix($this->getTable($table))."'";
 			return ($row = $this->model_db->query($query)->row()) ? (int) $row->Auto_increment : NULL;
 		}
-    }
+	}
 	
 	/**
 	 * Fetch primary key name of table
