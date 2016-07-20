@@ -289,7 +289,7 @@ class MY_Model extends CI_Model
 	 * @param	mixed	$data
 	 * @param	string	$table
 	 */
-	public function createMulti($data, $table = ''){
+	public function createBatch($data, $table = ''){
 		return empty($data) ? false : $this->model_db->insert_batch($this->getTable($table), $data);
 	}
 	
