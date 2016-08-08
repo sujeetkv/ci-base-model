@@ -35,6 +35,8 @@ class MY_Model extends CI_Model
 		
 		$this->load->helper('inflector');
 		
+		isset(get_instance()->db) or $this->load->database();
+		
 		if(get_class($this) != get_class()){
 			$this->sync_timezone and $this->_syncTimezone();
 			
@@ -701,8 +703,12 @@ class MY_Model extends CI_Model
 	}
 	
 	private function _syncTimezone(){
-		in_array($this->db->platform(), array('mysql', 'mysqli')) 
-		and $this->db->query("SET time_zone = '".date('P')."'");
+		if(! isset(get_instance()->__ci_db_tz_synchronized) or get_instance()->__ci_db_tz_synchronized !== true){
+			in_array($this->db->platform(), array('mysql', 'mysqli')) 
+			and $this->db->query("SET time_zone = '".date('P')."'");
+			
+			get_instance()->__ci_db_tz_synchronized = true;
+		}
 	}
 }
 
