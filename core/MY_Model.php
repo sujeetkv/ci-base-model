@@ -14,15 +14,21 @@ class MY_Model extends CI_Model
      */
     public $model_db;
     
+    protected $sync_timezone = true;
+    
     protected $table = NULL;
     protected $primary_key = NULL;
+    
     protected $has_many = array();
     protected $belongs_to = array();
     protected $relatives = array();
     protected $recursive_level = 0;
+    
     protected $default_return_type = 'object';
     private $_return_type = NULL;
-    protected $sync_timezone = true;
+    
+    protected $created_field = 'created';
+    protected $updated_field = 'modified';
     
     /**
      * model constructor
@@ -362,26 +368,27 @@ class MY_Model extends CI_Model
         }
         
         $fields = $this->getFieldTypes($table);
-        $time_fields = array_intersect(array('created', 'modified'), array_keys($fields));
+        $time_fields = array_intersect(array($this->created_field, $this->updated_field), array_keys($fields));
         
         if (is_object($data)) {
             if (isset($data->{$this->primary_key})) {
                 $id = $data->{$this->primary_key};
                 unset($data->{$this->primary_key});
                 
-                if (isset($data->modified)) {
-                    if ($data->modified === false) {
-                        unset($data->modified);
+                if (isset($data->{$this->updated_field})) {
+                    if ($data->{$this->updated_field} === false) {
+                        unset($data->{$this->updated_field});
                     }
-                } elseif (in_array('modified', $time_fields) and in_array($fields['modified'], array('datetime', 'timestamp'))) {
-                    $data->modified = date('Y-m-d H:i:s');
+                } elseif (in_array($this->updated_field, $time_fields) 
+                        and in_array($fields[$this->updated_field], array('datetime', 'timestamp'))) {
+                    $data->{$this->updated_field} = date('Y-m-d H:i:s');
                 }
                 
                 return $this->updateById($id, $data, $table);
             } else {
-                if (!isset($data->created) and in_array('created', $time_fields)
-                        and in_array($fields['created'], array('datetime', 'timestamp'))) {
-                    $data->created = date('Y-m-d H:i:s');
+                if (!isset($data->{$this->created_field}) and in_array($this->created_field, $time_fields)
+                        and in_array($fields[$this->created_field], array('datetime', 'timestamp'))) {
+                    $data->{$this->created_field} = date('Y-m-d H:i:s');
                 }
                 return $this->create($data, $table);
             }
@@ -390,18 +397,19 @@ class MY_Model extends CI_Model
                 $id = $data[$this->primary_key];
                 unset($data[$this->primary_key]);
                 
-                if (isset($data['modified'])) {
-                    if ($data['modified'] === false) {
-                        unset($data['modified']);
+                if (isset($data[$this->updated_field])) {
+                    if ($data[$this->updated_field] === false) {
+                        unset($data[$this->updated_field]);
                     }
-                } elseif (in_array('modified', $time_fields) and in_array($fields['modified'], array('datetime', 'timestamp'))) {
-                    $data['modified'] = date('Y-m-d H:i:s');
+                } elseif (in_array($this->updated_field, $time_fields) 
+                        and in_array($fields[$this->updated_field], array('datetime', 'timestamp'))) {
+                    $data[$this->updated_field] = date('Y-m-d H:i:s');
                 }
                 return $this->updateById($id, $data, $table);
             } else {
-                if (!isset($data['created']) and in_array('created', $time_fields)
-                        and in_array($fields['created'], array('datetime', 'timestamp'))) {
-                    $data['created'] = date('Y-m-d H:i:s');
+                if (!isset($data[$this->created_field]) and in_array($this->created_field, $time_fields)
+                        and in_array($fields[$this->created_field], array('datetime', 'timestamp'))) {
+                    $data[$this->created_field] = date('Y-m-d H:i:s');
                 }
                 return $this->create($data, $table);
             }
