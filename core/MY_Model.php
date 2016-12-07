@@ -666,7 +666,11 @@ class MY_Model extends CI_Model
         foreach ($options as $option => $params) {
             if (!method_exists($this->model_db, $option) or preg_match('/^get/i', $option)) {
                 $trace = debug_backtrace();
-                show_error('Invalid options parameter \'' . $option . '\' for ' . get_class($this) . '::' . $trace[1]['function'] . '()', 500, 'A Model Error Occurred');
+                show_error(
+                    'Invalid options parameter \'' . $option . '\' for ' . get_class($this) . '::' . $trace[1]['function'] . '()',
+                    500,
+                    'A Model Error Occurred'
+                );
             } else {
                 is_array($params) or $params = array($params);
                 call_user_func_array(array($this->model_db, $option), $params);
@@ -692,11 +696,14 @@ class MY_Model extends CI_Model
     
     private function _setPrimaryKey() {
         if (empty($this->primary_key)) {
-            if (empty($this->table)) {
-                show_error('Set \'primary_key\' to use key dependent methods of \'' . get_class($this) . '\'', 500, 'A Model Error Occurred');
+            empty($this->table) or $this->primary_key = $this->fetchPrimaryKey();
+            if (empty($this->primary_key)) {
+                show_error(
+                    'Set \'primary_key\' to use key dependent methods of \'' . get_class($this) . '\'',
+                    500,
+                    'A Model Error Occurred'
+                );
             }
-            
-            $this->primary_key = $this->fetchPrimaryKey();
         }
     }
     
