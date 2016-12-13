@@ -308,7 +308,7 @@ class MY_Model extends CI_Model
      * @param	string	$table
      */
     public function update($condition, $data, $table = '') {
-        return (!empty($data) and $this->model_db->where($condition)->update($this->getTable($table), $data));
+        return empty($data) ? false : $this->model_db->where($condition)->update($this->getTable($table), $data);
     }
     
     /**
