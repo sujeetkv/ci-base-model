@@ -3,6 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * CodeIgniter Base Model
+ * v 1.0
  *
  * @author Sujeet <sujeetkv90@gmail.com>
  * @link https://github.com/sujeet-kumar/ci-base-model
