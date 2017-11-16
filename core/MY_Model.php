@@ -190,7 +190,7 @@ class MY_Model extends CI_Model
      * @param string $table
      * @param array $options
      */
-    public function findField($field, $condition = '', $table = '', $options = null) {
+    public function findValue($field, $condition = '', $table = '', $options = null) {
         if ($row = $this->findOneBy($condition, $field, $table, $options)) {
             return $row->$field;
         } else {

@@ -17,15 +17,19 @@ class Post_model extends MY_Model
 
 $this->load->model('post_model', 'post');
 
-$this->post->getAll();
+$this->post->find(1);
+$this->post->findOneById(1);// magic finder
 
-$this->post->getById(1);
+$this->post->findAll();
+$this->post->findAll('title, content');
 
-$this->post->getOne(array( 'title' => 'The Demo Post!' ));
-$this->post->getOneBy('title', 'The Demo Post!');
+$this->post->findBy(array( 'title' => 'The Demo Post!' ));
+$this->post->findByTitle('The Demo Post!');// magic finder
 
-$this->post->getAll(array( 'status' => 1 ));
-$this->post->getAllBy('status', 1);
+$this->post->findOneBy('status', 1);
+$this->post->findOneByStatus(1);// magic finder
+
+$this->post->findValue('title', array( 'id' => 10 ));
 
 $this->post->create(array(
     'status' => 1,
@@ -110,7 +114,7 @@ You can then access your related data using the `with()` method:
 ```php
 $post = $this->post_model->with('user')
                          ->with('comments')
-                         ->getById(1);
+                         ->find(1);
 ```
 
 The related data will be embedded in the returned value from `getById`:
@@ -127,7 +131,7 @@ foreach ($post->comments as $comment)
 You can access chained related data recursively using the `withRecursive()` method:
 
 ```php
-$post = $this->post_model->withRecursive()->getById(1);
+$post = $this->post_model->withRecursive()->find(1);
 ```
 
 You can pass recursion level to `withRecursive()` method.
@@ -187,8 +191,8 @@ class Book_model extends MY_Model
 If you'd like just your _next_ call to return a specific type, there are two scoping methods you can use:
 
 ```php
-$this->book_model->asArray()->getById(1);
-$this->book_model->asObject()->getById(1);
+$this->book_model->asArray()->find(1);
+$this->book_model->asObject()->find(1);
 ```
 
 Special Save Feature
@@ -240,9 +244,9 @@ Notes:
 Many methods of `MY_Model` accept parameter named `$options`. This can be used to call any valid CodeIgniter DB Object's method except `get*` methods:
 
 ```php
-$posts = $this->post->getAll(array('status' => 1), "posts.*, authors.name", NULL, array(
+$posts = $this->post->findBy(array('status' => 1), "posts.*, authors.name", NULL, array(
     'join' => array('authors', 'posts.author_id = authors.id', 'left'),
-	'order_by' => array('posts.id', 'desc')
+    'order_by' => array('posts.id', 'desc')
 ));
 ```
 
