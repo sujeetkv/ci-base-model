@@ -263,6 +263,18 @@ $posts = $this->post->findBy(array('status' => 1), "posts.*, authors.name", arra
     'join' => array('authors', 'posts.author_id = authors.id', 'left'),
     'order_by' => array('posts.id', 'desc')
 ));
+
+$users = $this->user->findBy(null, "id, first_name, email", array(
+    'where_in' => array('username', array('Frank', 'Todd', 'James'))
+));
+
+$users = $this->user->findBy(null, "id, first_name, email", array(
+    'like' => array('username', 'James')
+));
+
+$users = $this->user->findOneBy(array('status' => 1), null, array(
+    'select_max' => array('age')
+));
 ```
 
 *Many methods of `MY_Model` accept parameter to pass table name, so that we can use them for any table of database.*
