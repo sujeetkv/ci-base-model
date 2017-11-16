@@ -368,7 +368,7 @@ class MY_Model extends CI_Model
      * @param mixed $data
      * @param string $table
      */
-    public function update($condition, $data, $table = '') {
+    public function updateBy($condition, $data, $table = '') {
         return empty($data) ? false : $this->model_db->where($condition)->update($this->getTable($table), $data);
     }
     
@@ -380,7 +380,7 @@ class MY_Model extends CI_Model
      * @param string $table
      */
     public function updateById($id, $data, $table = '') {
-        return $this->update(array($this->primary_key => $id), $data, $table);
+        return $this->updateBy(array($this->primary_key => $id), $data, $table);
     }
     
     /**
@@ -389,7 +389,7 @@ class MY_Model extends CI_Model
      * @param mixed $condition
      * @param string $table
      */
-    public function delete($condition, $table = '') {
+    public function deleteBy($condition, $table = '') {
         $this->model_db->where($condition);
         return $this->model_db->delete($this->getTable($table));
     }
@@ -401,7 +401,7 @@ class MY_Model extends CI_Model
      * @param string $table
      */
     public function deleteById($id, $table = '') {
-        return $this->delete(array($this->primary_key => $id), $table);
+        return $this->deleteBy(array($this->primary_key => $id), $table);
     }
     
     /**

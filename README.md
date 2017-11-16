@@ -31,16 +31,20 @@ $this->post->findOneByStatus(1);// magic finder
 
 $this->post->findValue('title', array( 'id' => 10 ));
 
+$this->post->order('created', 'desc')->limit(20)->findAll();
+
+$this->post->countAll(array( 'status' => 1 ));
+
 $this->post->create(array(
     'status' => 1,
     'title' => "The Post of Demo!",
     'content' => "The demo content."
 ));
 
-$this->post->update(array( 'id' => 1 ), array( 'status' => 0 ));
+$this->post->updateBy(array( 'id' => 1 ), array( 'status' => 0 ));
 $this->post->updateById(1, array( 'status' => 0 ));
 
-$this->post->delete(array( 'id' => 1 ));
+$this->post->deleteBy(array( 'id' => 1 ));
 $this->post->deleteById(1);
 ```
 
