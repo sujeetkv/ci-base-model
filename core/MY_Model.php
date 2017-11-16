@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * CodeIgniter Base Model
- * v 1.0
+ * v 2.0
  *
  * @author Sujeet <sujeetkv90@gmail.com>
  * @link https://github.com/sujeet-kumar/ci-base-model
@@ -11,28 +11,67 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class MY_Model extends CI_Model
 {
     /**
-     * model level db object
+     * @var object Model db object
      */
     public $model_db;
     
-    protected $sync_timezone = true;
+    /**
+     * @var string Model table name
+     */
+    protected $table = null;
     
-    protected $table = NULL;
-    protected $primary_key = NULL;
+    /**
+     * @var string Model primary-key name
+     */
+    protected $primary_key = null;
     
+    /**
+     * @var array Model has-many references
+     */
     protected $has_many = array();
+    
+    /**
+     * @var array Model belongs-to references
+     */
     protected $belongs_to = array();
-    protected $relatives = array();
+    
+    /**
+     * @var array Model references collection
+     */
+    private $relatives = array();
+    
+    /**
+     * @var int Model references level
+     */
     protected $recursive_level = 0;
     
-    protected $default_return_type = 'object';
-    private $_return_type = NULL;
+    /**
+     * @var string Default return type switch
+     */
+    private $_return_type = null;
     
+    /**
+     * @var string Default return type for all find methods
+     */
+    protected $default_return_type = 'object';
+    
+    /**
+     * @var bool Set TRUE to synchronize db timezone
+     */
+    protected $sync_timezone = true;
+    
+    /**
+     * @var string name of created datetime/timestamp field
+     */
     protected $created_field = 'created';
+    
+    /**
+     * @var string name of updated datetime/timestamp field
+     */
     protected $updated_field = 'modified';
     
     /**
-     * model constructor
+     * Constructor
      */
     public function __construct() {
         parent::__construct();
@@ -57,12 +96,12 @@ class MY_Model extends CI_Model
     /**
      * Get single record
      *
-     * @param	mixed	$condition
-     * @param	mixed	$fields
-     * @param	string	$table
-     * @param	array	$options
+     * @param mixed $condition
+     * @param mixed $fields
+     * @param string $table
+     * @param array $options
      */
-    public function getOne($condition = '', $fields = '', $table = '', $options = NULL) {
+    public function getOne($condition = '', $fields = '', $table = '', $options = null) {
         empty($condition) or $this->model_db->where($condition);
         if (!empty($fields)) {
             is_array($fields) or $fields = array($fields);
@@ -88,53 +127,53 @@ class MY_Model extends CI_Model
     /**
      * Get single record filtered by field value
      *
-     * @param	string	$field
-     * @param	mixed	$value
-     * @param	mixed	$fields
-     * @param	string	$table
-     * @param	array	$options
+     * @param string $field
+     * @param mixed $value
+     * @param mixed $fields
+     * @param string $table
+     * @param array $options
      */
-    public function getOneBy($field, $value, $fields = '', $table = '', $options = NULL) {
+    public function getOneBy($field, $value, $fields = '', $table = '', $options = null) {
         return $this->getOne(array($field => $value), $fields, $table, $options);
     }
     
     /**
      * Get single record filtered by id
      *
-     * @param	int		$id
-     * @param	mixed	$fields
-     * @param	string	$table
-     * @param	array	$options
+     * @param int $id
+     * @param mixed $fields
+     * @param string $table
+     * @param array $options
      */
-    public function getById($id, $fields = '', $table = '', $options = NULL) {
+    public function getById($id, $fields = '', $table = '', $options = null) {
         return $this->getOne(array($this->getTable($table) . '.' . $this->primary_key => $id), $fields, $table, $options);
     }
     
     /**
      * Get single field value
      *
-     * @param	string	$field
-     * @param	mixed	$condition
-     * @param	string	$table
-     * @param	array	$options
+     * @param string $field
+     * @param mixed $condition
+     * @param string $table
+     * @param array $options
      */
-    public function getField($field, $condition = '', $table = '', $options = NULL) {
+    public function getField($field, $condition = '', $table = '', $options = null) {
         if ($row = $this->getOne($condition, $field, $table, $options)) {
             return $row->$field;
         } else {
-            return NULL;
+            return null;
         }
     }
     
     /**
      * Get multiple records
      *
-     * @param	mixed	$condition
-     * @param	mixed	$fields
-     * @param	string	$table
-     * @param	array	$options
+     * @param mixed $condition
+     * @param mixed $fields
+     * @param string $table
+     * @param array $options
      */
-    public function getAll($condition = '', $fields = '', $table = '', $options = NULL) {
+    public function getAll($condition = '', $fields = '', $table = '', $options = null) {
         empty($condition) or $this->model_db->where($condition);
         if (!empty($fields)) {
             is_array($fields) or $fields = array($fields);
@@ -164,21 +203,21 @@ class MY_Model extends CI_Model
     /**
      * Get multiple records filtered by field value
      *
-     * @param	string	$field
-     * @param	mixed	$value
-     * @param	mixed	$fields
-     * @param	string	$table
-     * @param	array	$options
+     * @param string $field
+     * @param mixed $value
+     * @param mixed $fields
+     * @param string $table
+     * @param array $options
      */
-    public function getAllBy($field, $value, $fields = '', $table = '', $options = NULL) {
+    public function getAllBy($field, $value, $fields = '', $table = '', $options = null) {
         return $this->getAll(array($field => $value), $fields, $table, $options);
     }
     
     /**
      * Set order of records
      *
-     * @param	string	$orderby
-     * @param	string	$direction asc or desc
+     * @param string $orderby
+     * @param string $direction asc or desc
      */
     public function order($orderby, $direction = '') {
         $this->model_db->order_by($orderby, $direction);
@@ -188,8 +227,8 @@ class MY_Model extends CI_Model
     /**
      * Set limit of records
      *
-     * @param	int	$value
-     * @param	int	$offset
+     * @param int $value
+     * @param int $offset
      */
     public function limit($value, $offset = '') {
         $this->model_db->limit($value, $offset);
@@ -199,11 +238,11 @@ class MY_Model extends CI_Model
     /**
      * Set relative to be fetched with records
      *
-     * @param	string	$relative
-     * @param	mixed	$fields
-     * @param	mixed	$limit
-     * @param	mixed	$order
-     * @param	array	$scope
+     * @param string $relative
+     * @param mixed $fields
+     * @param mixed $limit
+     * @param mixed $order
+     * @param array $scope
      */
     public function with($relative, $fields = '', $limit = array(), $order = array(), $scope = array()) {
         is_array($limit) or $limit = array($limit);
@@ -216,7 +255,7 @@ class MY_Model extends CI_Model
     /**
      * Set relative level to be fetched with records recursively
      *
-     * @param	int|bool	$level
+     * @param int|bool $level
      */
     public function withRecursive($level = true) {
         $this->recursive_level = $level === true ? $level : (int) $level;
@@ -242,11 +281,11 @@ class MY_Model extends CI_Model
     /**
      * Get record count
      *
-     * @param	mixed	$condition
-     * @param	string	$table
-     * @param	array	$options
+     * @param mixed $condition
+     * @param string $table
+     * @param array $options
      */
-    public function countAll($condition = '', $table = '', $options = NULL) {
+    public function countAll($condition = '', $table = '', $options = null) {
         if (empty($condition)) {
             return $this->model_db->count_all($this->getTable($table));
         } else {
@@ -258,12 +297,12 @@ class MY_Model extends CI_Model
     /**
      * Get record count of field
      *
-     * @param	string	$field
-     * @param	mixed	$condition
-     * @param	string	$table
-     * @param	array	$options
+     * @param string $field
+     * @param mixed $condition
+     * @param string $table
+     * @param array $options
      */
-    public function countField($field, $condition = '', $table = '', $options = NULL) {
+    public function countField($field, $condition = '', $table = '', $options = null) {
         empty($condition) or $this->model_db->where($condition);
         is_array($options) and $this->_execOptions($options);
         $query = $this->model_db->select("COUNT($field) AS rowcount", false)->get($this->getTable($table));
@@ -273,8 +312,8 @@ class MY_Model extends CI_Model
     /**
      * Check if id exists
      *
-     * @param	int		$id
-     * @param	string	$table
+     * @param int $id
+     * @param string $table
      */
     public function hasId($id, $table = '') {
         return (bool) $this->countField($this->primary_key, array($this->primary_key => $id), $table);
@@ -283,8 +322,8 @@ class MY_Model extends CI_Model
     /**
      * Insert record
      *
-     * @param	mixed	$data
-     * @param	string	$table
+     * @param mixed $data
+     * @param string $table
      */
     public function create($data, $table = '') {
         $inserted = empty($data) ? false : $this->model_db->insert($this->getTable($table), $data);
@@ -294,8 +333,8 @@ class MY_Model extends CI_Model
     /**
      * Insert multiple records
      *
-     * @param	mixed	$data
-     * @param	string	$table
+     * @param mixed $data
+     * @param string $table
      */
     public function createBatch($data, $table = '') {
         return empty($data) ? false : $this->model_db->insert_batch($this->getTable($table), $data);
@@ -304,9 +343,9 @@ class MY_Model extends CI_Model
     /**
      * Update records
      *
-     * @param	mixed	$condition
-     * @param	mixed	$data
-     * @param	string	$table
+     * @param mixed $condition
+     * @param mixed $data
+     * @param string $table
      */
     public function update($condition, $data, $table = '') {
         return empty($data) ? false : $this->model_db->where($condition)->update($this->getTable($table), $data);
@@ -315,9 +354,9 @@ class MY_Model extends CI_Model
     /**
      * Update record filtered by id
      *
-     * @param	int 	$id
-     * @param	mixed	$data
-     * @param	string	$table
+     * @param int $id
+     * @param mixed $data
+     * @param string $table
      */
     public function updateById($id, $data, $table = '') {
         return $this->update(array($this->primary_key => $id), $data, $table);
@@ -326,8 +365,8 @@ class MY_Model extends CI_Model
     /**
      * Delete records
      *
-     * @param	mixed	$condition
-     * @param	string	$table
+     * @param mixed $condition
+     * @param string $table
      */
     public function delete($condition, $table = '') {
         $this->model_db->where($condition);
@@ -337,8 +376,8 @@ class MY_Model extends CI_Model
     /**
      * Delete record filtered by id
      *
-     * @param	int 	$id
-     * @param	string	$table
+     * @param int $id
+     * @param string $table
      */
     public function deleteById($id, $table = '') {
         return $this->delete(array($this->primary_key => $id), $table);
@@ -347,8 +386,8 @@ class MY_Model extends CI_Model
     /**
      * Before save callback signature
      *
-     * @param	mixed 	$data
-     * @param	string	$table
+     * @param mixed $data
+     * @param string $table
      */
     public function beforeSave($data, $table) {
         // to be overridden
@@ -358,8 +397,8 @@ class MY_Model extends CI_Model
     /**
      * Insert or Update record
      *
-     * @param	mixed	$data
-     * @param	string	$table
+     * @param mixed $data
+     * @param string $table
      */
     public function save($data, $table = '') {
         $data = $this->beforeSave($data, $table);
@@ -419,6 +458,8 @@ class MY_Model extends CI_Model
     
     /**
      * Get table name of model
+     * 
+     * @param string $table
      */
     public function getTable($table = '') {
         return (!empty($table)) ? $table : $this->table;
@@ -434,7 +475,7 @@ class MY_Model extends CI_Model
     /**
      * Get schema of table
      *
-     * @param	string	$table
+     * @param string $table
      */
     public function getSchema($table = '') {
         return $this->model_db->field_data($this->getTable($table));
@@ -443,7 +484,7 @@ class MY_Model extends CI_Model
     /**
      * Get fields of table
      *
-     * @param	string	$table
+     * @param string $table
      */
     public function getFields($table = '') {
         return $this->model_db->list_fields($this->getTable($table));
@@ -452,8 +493,8 @@ class MY_Model extends CI_Model
     /**
      * Check if field exists
      *
-     * @param	string	$field
-     * @param	string	$table
+     * @param string $field
+     * @param string $table
      */
     public function hasField($field, $table = '') {
         return $this->model_db->field_exists($field, $this->getTable($table));
@@ -462,7 +503,7 @@ class MY_Model extends CI_Model
     /**
      * Get field types of table
      *
-     * @param	string	$table
+     * @param string $table
      */
     public function getFieldTypes($table = '') {
         $types = array();
@@ -477,11 +518,11 @@ class MY_Model extends CI_Model
     /**
      * Get field type
      *
-     * @param	string	$field
-     * @param	string	$table
+     * @param string $field
+     * @param string $table
      */
     public function getFieldType($field, $table = '') {
-        $type = NULL;
+        $type = null;
         if ($types = $this->getFieldTypes($table)) {
             isset($types[$field]) and $type = $types[$field];
         }
@@ -491,11 +532,11 @@ class MY_Model extends CI_Model
     /**
      * Get next id of table
      *
-     * @param	string	$table
+     * @param string $table
      */
     public function getNextId($table = '') {
         if (!in_array($this->model_db->platform(), array('mysql', 'mysqli'))) {
-            return NULL;
+            return null;
         } else {
             /* return (int) $this->model_db->select('AUTO_INCREMENT')
               ->where('TABLE_NAME', $this->model_db->dbprefix($this->getTable($table)))
@@ -503,17 +544,17 @@ class MY_Model extends CI_Model
               ->get('information_schema.TABLES')
               ->row()->AUTO_INCREMENT; */
             $query = "SHOW TABLE STATUS WHERE `Name` = '" . $this->model_db->dbprefix($this->getTable($table)) . "'";
-            return ($row = $this->model_db->query($query)->row()) ? (int) $row->Auto_increment : NULL;
+            return ($row = $this->model_db->query($query)->row()) ? (int) $row->Auto_increment : null;
         }
     }
     
     /**
      * Fetch primary key name of table
      *
-     * @param	string	$table
+     * @param string $table
      */
     public function fetchPrimaryKey($table = '') {
-        $key = NULL;
+        $key = null;
         
         if (!in_array($this->model_db->platform(), array('mysql', 'mysqli'))) {
             if ($fields = $this->getSchema($this->getTable($table))) {
@@ -534,6 +575,12 @@ class MY_Model extends CI_Model
         return $key;
     }
     
+    /**
+     * Fetch associated relations for find queries
+     *
+     * @param mixed $row
+     * @param string $table
+     */
     protected function relate($row, $table = '') {
         if (!empty($row)) {
             foreach ($this->has_many as $key => $value) {
@@ -551,12 +598,12 @@ class MY_Model extends CI_Model
                 
                 $fields = isset($options['fields']) ? $options['fields'] : '';
                 
-                $limit = NULL;
+                $limit = null;
                 if (isset($options['limit'])) {
                     $limit = is_array($options['limit']) ? $options['limit'] : array($options['limit']);
                 }
                 
-                $order = NULL;
+                $order = null;
                 if (isset($options['order'])) {
                     $order = is_array($options['order']) ? $options['order'] : array($options['order']);
                 }
@@ -618,6 +665,12 @@ class MY_Model extends CI_Model
         return $row;
     }
     
+    /**
+     * Fetch associated recursive relations for find queries
+     *
+     * @param mixed $row
+     * @param string $table
+     */
     protected function relateRecursive($row, $table = '') {
         if (!empty($row)) {
             foreach ($this->has_many as $key => $value) {
@@ -663,6 +716,11 @@ class MY_Model extends CI_Model
         return $row;
     }
     
+    /**
+     * Execute methods defind in options
+     *
+     * @param array $options
+     */
     private function _execOptions($options) {
         foreach ($options as $option => $params) {
             if (!method_exists($this->model_db, $option) or preg_match('/^get/i', $option)) {
@@ -679,22 +737,33 @@ class MY_Model extends CI_Model
         }
     }
     
+    /**
+     * Get return type
+     *
+     * @param bool $multi
+     */
     private function _returnType($multi = false) {
         $return_type = $this->default_return_type;
         if (!empty($this->_return_type)) {
             $return_type = $this->_return_type;
-            $this->_return_type = NULL;
+            $this->_return_type = null;
         }
         $method = $multi ? 'result' : 'row';
         return ($return_type == 'array') ? $method . '_array' : $method;
     }
     
+    /**
+     * Set Model table name
+     */
     private function _setTableName() {
         if (empty($this->table) and $this->table !== false) {
             $this->table = plural(preg_replace('/(_model|_m)?$/', '', strtolower(get_class($this))));
         }
     }
     
+    /**
+     * Set Model primary-key name
+     */
     private function _setPrimaryKey() {
         if (empty($this->primary_key)) {
             empty($this->table) or $this->primary_key = $this->fetchPrimaryKey();
@@ -708,6 +777,9 @@ class MY_Model extends CI_Model
         }
     }
     
+    /**
+     * Synchronizes db timezone
+     */
     private function _syncTimezone() {
         if (!isset(get_instance()->__ci_db_tz_synchronized) or get_instance()->__ci_db_tz_synchronized !== true) {
             in_array($this->db->platform(), array('mysql', 'mysqli')) and $this->db->query("SET time_zone = '" . date('P') . "'");
