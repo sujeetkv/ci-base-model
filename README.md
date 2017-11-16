@@ -259,7 +259,7 @@ Notes:
 Many methods of `MY_Model` accept parameter named `$options`. This can be used to call any valid CodeIgniter DB Object's method except `get*` methods:
 
 ```php
-$posts = $this->post->findBy(array('status' => 1), "posts.*, authors.name", NULL, array(
+$posts = $this->post->findBy(array('status' => 1), "posts.*, authors.name", array(
     'join' => array('authors', 'posts.author_id = authors.id', 'left'),
     'order_by' => array('posts.id', 'desc')
 ));

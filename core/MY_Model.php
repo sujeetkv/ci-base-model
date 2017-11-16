@@ -303,10 +303,10 @@ class MY_Model extends CI_Model
      * Get record count
      *
      * @param mixed $condition
-     * @param string $table
      * @param array $options
+     * @param string $table
      */
-    public function countAll($condition = '', $table = '', $options = null) {
+    public function countAll($condition = '', $options = null, $table = '') {
         if (empty($condition)) {
             return $this->model_db->count_all($this->getTable($table));
         } else {
@@ -320,10 +320,10 @@ class MY_Model extends CI_Model
      *
      * @param string $field
      * @param mixed $condition
-     * @param string $table
      * @param array $options
+     * @param string $table
      */
-    public function countField($field, $condition = '', $table = '', $options = null) {
+    public function countField($field, $condition = '', $options = null, $table = '') {
         empty($condition) or $this->model_db->where($condition);
         is_array($options) and $this->_execOptions($options);
         $query = $this->model_db->select("COUNT($field) AS rowcount", false)->get($this->getTable($table));
@@ -570,7 +570,7 @@ class MY_Model extends CI_Model
     }
     
     /**
-     * Fetch primary key name of table
+     * Fetch field name of primary-key
      *
      * @param string $table
      */
@@ -752,7 +752,7 @@ class MY_Model extends CI_Model
     }
     
     /**
-     * Execute methods defind in options
+     * Execute methods specified in options
      *
      * @param array $options
      */
