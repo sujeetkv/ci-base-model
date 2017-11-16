@@ -51,7 +51,7 @@ class MY_Model extends CI_Model
     private $_return_type = null;
     
     /**
-     * @var string Default return type for all find methods
+     * @var string Default return type for all get* methods
      */
     protected $default_return_type = 'object';
     
@@ -94,86 +94,37 @@ class MY_Model extends CI_Model
     }
     
     /**
-     * Get single record
-     *
-     * @param mixed $condition
-     * @param mixed $fields
-     * @param string $table
-     * @param array $options
-     */
-    public function getOne($condition = '', $fields = '', $table = '', $options = null) {
-        empty($condition) or $this->model_db->where($condition);
-        if (!empty($fields)) {
-            is_array($fields) or $fields = array($fields);
-            call_user_func_array(array($this->model_db, 'select'), $fields);
-        }
-        is_array($options) and $this->_execOptions($options);
-        
-        $row = $this->model_db->get($this->getTable($table))->{$this->_returnType()}();
-        
-        if ($this->recursive_level > 0 or $this->recursive_level === true) {
-            $row = $this->relateRecursive($row, $table);
-            $this->recursive_level = 0;
-        }
-        
-        if (!empty($this->relatives)) {
-            $row = $this->relate($row, $table);
-            $this->relatives = array();
-        }
-        
-        return $row;
-    }
-    
-    /**
-     * Get single record filtered by field value
-     *
-     * @param string $field
-     * @param mixed $value
-     * @param mixed $fields
-     * @param string $table
-     * @param array $options
-     */
-    public function getOneBy($field, $value, $fields = '', $table = '', $options = null) {
-        return $this->getOne(array($field => $value), $fields, $table, $options);
-    }
-    
-    /**
-     * Get single record filtered by id
+     * Get single record by id/primary_key
      *
      * @param int $id
      * @param mixed $fields
      * @param string $table
      * @param array $options
      */
-    public function getById($id, $fields = '', $table = '', $options = null) {
-        return $this->getOne(array($this->getTable($table) . '.' . $this->primary_key => $id), $fields, $table, $options);
+    public function find($id, $fields = '', $table = '', $options = null) {
+        return $this->findOneBy(array($this->getTable($table) . '.' . $this->primary_key => $id), $fields, $table, $options);
     }
     
     /**
-     * Get single field value
+     * Get all records without any conditions
      *
-     * @param string $field
-     * @param mixed $condition
+     * @param mixed $fields
      * @param string $table
      * @param array $options
      */
-    public function getField($field, $condition = '', $table = '', $options = null) {
-        if ($row = $this->getOne($condition, $field, $table, $options)) {
-            return $row->$field;
-        } else {
-            return null;
-        }
+    public function findAll($fields = '', $table = '', $options = null) {
+        return $this->findBy('', $fields, $table, $options);
     }
     
     /**
-     * Get multiple records
+     * Get multiple records by a set of conditions
      *
      * @param mixed $condition
      * @param mixed $fields
      * @param string $table
      * @param array $options
      */
-    public function getAll($condition = '', $fields = '', $table = '', $options = null) {
+    public function findBy($condition = '', $fields = '', $table = '', $options = null) {
         empty($condition) or $this->model_db->where($condition);
         if (!empty($fields)) {
             is_array($fields) or $fields = array($fields);
@@ -201,16 +152,86 @@ class MY_Model extends CI_Model
     }
     
     /**
-     * Get multiple records filtered by field value
+     * Get single record by a set of conditions
      *
-     * @param string $field
-     * @param mixed $value
+     * @param mixed $condition
      * @param mixed $fields
      * @param string $table
      * @param array $options
      */
-    public function getAllBy($field, $value, $fields = '', $table = '', $options = null) {
-        return $this->getAll(array($field => $value), $fields, $table, $options);
+    public function findOneBy($condition = '', $fields = '', $table = '', $options = null) {
+        empty($condition) or $this->model_db->where($condition);
+        if (!empty($fields)) {
+            is_array($fields) or $fields = array($fields);
+            call_user_func_array(array($this->model_db, 'select'), $fields);
+        }
+        is_array($options) and $this->_execOptions($options);
+        
+        $row = $this->model_db->get($this->getTable($table))->{$this->_returnType()}();
+        
+        if ($this->recursive_level > 0 or $this->recursive_level === true) {
+            $row = $this->relateRecursive($row, $table);
+            $this->recursive_level = 0;
+        }
+        
+        if (!empty($this->relatives)) {
+            $row = $this->relate($row, $table);
+            $this->relatives = array();
+        }
+        
+        return $row;
+    }
+    
+    /**
+     * Get single field value
+     *
+     * @param string $field
+     * @param mixed $condition
+     * @param string $table
+     * @param array $options
+     */
+    public function findField($field, $condition = '', $table = '', $options = null) {
+        if ($row = $this->findOneBy($condition, $field, $table, $options)) {
+            return $row->$field;
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Adds support for magic finders.
+     * 
+     * @param string $method
+     * @param array $arguments
+     */
+    public function __call($method, $arguments) {
+        switch (true) {
+            case (0 === strpos($method, 'findBy')):
+                $by = substr($method, 6);
+                $methodName = 'findBy';
+                break;
+
+            case (0 === strpos($method, 'findOneBy')):
+                $by = substr($method, 9);
+                $methodName = 'findOneBy';
+                break;
+
+            default:
+                throw new BadMethodCallException(
+                    "Undefined method '$methodName'. The method name must start with either findBy or findOneBy!"
+                );
+        }
+        
+        if (empty($arguments)) {
+            throw new Exception("You need to pass a parameter to '".$method."'");
+        }
+        
+        $fieldName = $this->normalizeFieldName($by);
+        $fieldValue = array_shift($arguments);
+        
+        array_unshift($arguments, array($fieldName => $fieldValue));
+        
+        return call_user_func_array(array($this, $methodName), $arguments);
     }
     
     /**
@@ -576,6 +597,20 @@ class MY_Model extends CI_Model
     }
     
     /**
+     * Helper to normalize field name
+     * 
+     * @param string $field
+     * @param bool $camelCase
+     */
+    public function normalizeFieldName($field, $camelCase = false) {
+        if ($camelCase) {
+            return lcfirst(str_replace(' ', '', ucwords(implode(' ', preg_split('/\\s|\\-|_/', $field)))));
+        } else {
+            return strtolower(preg_replace(array('/(?<=\\w)([A-Z])/', '/\\s|\\-/'), array('_$1', '_'), $field));
+        }
+    }
+    
+    /**
      * Fetch associated relations for find queries
      *
      * @param mixed $row
@@ -625,10 +660,10 @@ class MY_Model extends CI_Model
                     
                     if (is_object($row)) {
                         $condition[$options['foreign_key']] = $row->{$this->primary_key};
-                        $row->{$relative} = $this->$relative_model->getAll($condition, $fields);
+                        $row->{$relative} = $this->$relative_model->findBy($condition, $fields);
                     } else {
                         $condition[$options['foreign_key']] = $row[$this->primary_key];
-                        $row[$relative] = $this->$relative_model->asArray()->getAll($condition, $fields);
+                        $row[$relative] = $this->$relative_model->asArray()->findBy($condition, $fields);
                     }
                 }
             }
@@ -654,9 +689,9 @@ class MY_Model extends CI_Model
                     empty($this->relatives[$relative][0]) or $fields = $this->relatives[$relative][0];
                     
                     if (is_object($row)) {
-                        $row->{$relative} = $this->$relative_model->getById($row->{$options['foreign_key']}, $fields);
+                        $row->{$relative} = $this->$relative_model->find($row->{$options['foreign_key']}, $fields);
                     } else {
-                        $row[$relative] = $this->$relative_model->asArray()->getById($row[$options['foreign_key']], $fields);
+                        $row[$relative] = $this->$relative_model->asArray()->find($row[$options['foreign_key']], $fields);
                     }
                 }
             }
@@ -706,10 +741,10 @@ class MY_Model extends CI_Model
                 
                 if (is_object($row)) {
                     $condition[$options['foreign_key']] = $row->{$this->primary_key};
-                    $row->{$relative} = $this->$relative_model->withRecursive($level)->getAll($condition, $fields);
+                    $row->{$relative} = $this->$relative_model->withRecursive($level)->findBy($condition, $fields);
                 } else {
                     $condition[$options['foreign_key']] = $row[$this->primary_key];
-                    $row[$relative] = $this->$relative_model->withRecursive($level)->asArray()->getAll($condition, $fields);
+                    $row[$relative] = $this->$relative_model->withRecursive($level)->asArray()->findBy($condition, $fields);
                 }
             }
         }
