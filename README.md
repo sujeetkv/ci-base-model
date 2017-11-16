@@ -198,6 +198,17 @@ If you'd like just your _next_ call to return a specific type, there are two sco
 $this->book_model->asArray()->find(1);
 $this->book_model->asObject()->find(1);
 ```
+Magic Finders
+-------------
+
+You can use magic find methods by calling `findBy<PascalCaseFieldName>()` or `findOneBy<PascalCaseFieldName>()` on model's object.
+
+Following both statements are same:
+
+```php
+$this->post->findByStatus(1);// magic finder
+$this->post->findBy(array( 'status' => 1 ));
+```
 
 Special Save Feature
 --------------------
