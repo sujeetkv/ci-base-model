@@ -208,22 +208,22 @@ class MY_Model extends CI_Model
         switch (true) {
             case (0 === strpos($method, 'findBy')):
                 $by = substr($method, 6);
-                $methodName = 'findBy';
+                $method = 'findBy';
                 break;
 
             case (0 === strpos($method, 'findOneBy')):
                 $by = substr($method, 9);
-                $methodName = 'findOneBy';
+                $method = 'findOneBy';
                 break;
 
             default:
                 throw new BadMethodCallException(
-                    "Undefined method '$methodName'. The method name must start with either findBy or findOneBy!"
+                    "Undefined method '$method'. The method name must start with either findBy or findOneBy!"
                 );
         }
         
         if (empty($arguments)) {
-            throw new Exception("You need to pass a parameter to '".$method."'");
+            throw new Exception("You need to pass a parameter to '".$method.$by."'");
         }
         
         $fieldName = $this->normalizeFieldName($by);
@@ -231,7 +231,7 @@ class MY_Model extends CI_Model
         
         array_unshift($arguments, array($fieldName => $fieldValue));
         
-        return call_user_func_array(array($this, $methodName), $arguments);
+        return call_user_func_array(array($this, $method), $arguments);
     }
     
     /**
