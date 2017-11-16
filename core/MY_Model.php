@@ -51,7 +51,7 @@ class MY_Model extends CI_Model
     private $_return_type = null;
     
     /**
-     * @var string Default return type for all get* methods
+     * @var string Default return type for all find* methods
      */
     protected $default_return_type = 'object';
     
@@ -98,22 +98,22 @@ class MY_Model extends CI_Model
      *
      * @param int $id
      * @param mixed $fields
-     * @param string $table
      * @param array $options
+     * @param string $table
      */
-    public function find($id, $fields = '', $table = '', $options = null) {
-        return $this->findOneBy(array($this->getTable($table) . '.' . $this->primary_key => $id), $fields, $table, $options);
+    public function find($id, $fields = '', $options = null, $table = '') {
+        return $this->findOneBy(array($this->getTable($table) . '.' . $this->primary_key => $id), $fields, $options, $table);
     }
     
     /**
      * Get all records without any conditions
      *
      * @param mixed $fields
-     * @param string $table
      * @param array $options
+     * @param string $table
      */
-    public function findAll($fields = '', $table = '', $options = null) {
-        return $this->findBy('', $fields, $table, $options);
+    public function findAll($fields = '', $options = null, $table = '') {
+        return $this->findBy('', $fields, $options, $table);
     }
     
     /**
@@ -121,10 +121,10 @@ class MY_Model extends CI_Model
      *
      * @param mixed $condition
      * @param mixed $fields
-     * @param string $table
      * @param array $options
+     * @param string $table
      */
-    public function findBy($condition = '', $fields = '', $table = '', $options = null) {
+    public function findBy($condition = '', $fields = '', $options = null, $table = '') {
         empty($condition) or $this->model_db->where($condition);
         if (!empty($fields)) {
             is_array($fields) or $fields = array($fields);
@@ -156,10 +156,10 @@ class MY_Model extends CI_Model
      *
      * @param mixed $condition
      * @param mixed $fields
-     * @param string $table
      * @param array $options
+     * @param string $table
      */
-    public function findOneBy($condition = '', $fields = '', $table = '', $options = null) {
+    public function findOneBy($condition = '', $fields = '', $options = null, $table = '') {
         empty($condition) or $this->model_db->where($condition);
         if (!empty($fields)) {
             is_array($fields) or $fields = array($fields);
@@ -187,11 +187,11 @@ class MY_Model extends CI_Model
      *
      * @param string $field
      * @param mixed $condition
-     * @param string $table
      * @param array $options
+     * @param string $table
      */
-    public function findValue($field, $condition = '', $table = '', $options = null) {
-        if ($row = $this->findOneBy($condition, $field, $table, $options)) {
+    public function findValue($field, $condition = '', $options = null, $table = '') {
+        if ($row = $this->findOneBy($condition, $field, $options, $table)) {
             return $row->$field;
         } else {
             return null;
