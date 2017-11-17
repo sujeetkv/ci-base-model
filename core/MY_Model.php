@@ -237,11 +237,11 @@ class MY_Model extends CI_Model
     /**
      * Set order of records
      *
-     * @param string $orderby
+     * @param string $field
      * @param string $direction asc or desc
      */
-    public function order($orderby, $direction = '') {
-        $this->model_db->order_by($orderby, $direction);
+    public function orderBy($field, $direction = '') {
+        $this->model_db->order_by($field, $direction);
         return $this;
     }
     

@@ -31,7 +31,7 @@ $this->post->findOneByStatus(1);// magic finder
 
 $this->post->findValue('title', array( 'id' => 10 ));
 
-$this->post->order('created', 'desc')->limit(20)->findAll();
+$this->post->orderBy('created', 'desc')->limit(20)->findAll();
 
 $this->post->countAll(array( 'status' => 1 ));
 
