@@ -6,7 +6,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * v 2.0
  *
  * @author Sujeet <sujeetkv90@gmail.com>
- * @link https://github.com/sujeet-kumar/ci-base-model
+ * @link https://github.com/sujeetkv/ci-base-model
  */
 class MY_Model extends CI_Model
 {
